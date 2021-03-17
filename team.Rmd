@@ -1,0 +1,19 @@
+---
+title: "team.Rmd"
+author: "Dana Thacker, Andrew Fahmy"
+date: "3/15/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readxl)
+library(tidyverse)
+library(ggplot2)
+defense <- read_excel('../ds202_lab4/cyclonesFootball2020.xlsx', sheet='Defensive')
+offense <- read_excel('../ds202_lab4/cyclonesFootball2020.xlsx', sheet='Offensive')
+
+```
