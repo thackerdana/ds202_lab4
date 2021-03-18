@@ -51,57 +51,78 @@ biography <- biography %>%
 *Problem 3*
 Change the Height column in biography into numeric. (Hint: Use a unit that works well)
 ```{r}
+biography <- biography %>%
+  separate(Height, c('Feet', 'Inches'), sep='-') 
 
-
-
+biography <- biography %>%
+  mutate(Feet = as.numeric(Feet),
+         Inches = as.numeric(Inches))
 ```
 
 **Part 2: Tidying Data**
 *Problem 1*
 Reformat the offClean data frame into a tidy format using pivot_longer. The type of statistic (Receiving_REC for the number of receptions, Receiving_YDS for receiving yards, etc) is added as a new key column named stat.
 ```{r}
-
-
-
+offClean <- offense %>%
+  pivot_longer(Receiving_REC:Passing_INT, names_to = 'Type', values_to = 'Stat')
 ```
 
 *Problem 2*
 Show on the distributions of the offensive statistics. The distribution of each offensive statistics should be shown in a separate facet. Explain the patterns you see.
 ```{r}
-
-
+ggplot(offClean, aes(x = Stat)) + geom_histogram() + facet_wrap(~ Type, scales = 'free') + xlab("Stat") + ylab("Count") + ggtitle("Statistics by Type")
 ```
 
 *Problem 3*
 Did ISU have better offense against Oregon or Oklahoma? Answer this question by creating a scatterplot with the x- and y-axes being the receiving yards of the ISU players against these two opponents. A large number of receiving yards indicates good offense.
 ```{r}
+offOreOkl <- offClean %>%
+  filter(Opponent_Opponent %in% c("Oregon", "Oklahoma")) %>%
+  group_by(Name) %>%
+  filter(Type == "Receiving_YDS")
 
+offOklahoma <- offOreOkl %>%
+  filter(Opponent_Opponent %in% c("Oklahoma")) %>%
+  group_by(Name) %>%
+  summarise(Average = mean(Stat))
 
+offOregon <- offOreOkl %>%
+  filter(Opponent_Opponent %in% c("Oregon"))
+
+offOreOklAvg <- offOreOkl %>%
+  left_join(offOklahoma)
+
+offOreOklPivoted <- offOreOklAvg %>%
+  pivot_wider(names_from = 'Type', values_from = 'Stat') %>%
+  filter(Opponent_Opponent %in% c("Oregon")) %>%
+  rename(Oklahoma_Receiving_YDS = Average,
+         Oregon_Receiving_YDS = Receiving_YDS) %>%
+  mutate(Oklahoma_Receiving_YDS = as.numeric(Oklahoma_Receiving_YDS),
+         Oregon_Receiving_YDS = as.numeric(Oregon_Receiving_YDS))
+  
+ggplot(offOreOklPivoted, aes(x = Oklahoma_Receiving_YDS, y = Oregon_Receiving_YDS)) + geom_point() + xlab("Average Oklahoma Receiving Yards") + ylab("Oregon Receiving Yards") + ggtitle("Oklahoma Receiving Yards vs Oregon Receiving Yards by ISU in 2020")
 ```
 
 *Problem 4*
 Separate the Hometown column into two columns, namely, the city and the state where the player comes from. Print the first few rows of these two columns. (Hint: look at the sep= argument of separate)
 ```{r}
+biography <- biography %>%
+  separate(Hometown, c('City', 'State'), sep = ', ')
 
-
-
+head(biography, 4)
 ```
 
 *Problem 5*
 How many players are there from each state?
 ```{r}
-
-
-
+ggplot(biography, aes(x = State)) + geom_bar() + xlab("State") + ylab("Count") + ggtitle("Number of Players From Each State")
 ```
 
 **Part 3: Joining Data Frames**
 *Problem 1*
 Find which states do the ISU players (both defensive and offensive) come from. Create an appropriate numerical or graphical summary.
 ```{r}
-
-
-
+ggplot(biography, aes(x = State)) + geom_bar() + xlab("State") + ylab("Count") + ggtitle("Number of Players From Each State")
 ```
 
 *Problem 2*
