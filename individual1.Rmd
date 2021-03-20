@@ -73,6 +73,8 @@ Show on the distributions of the offensive statistics. The distribution of each 
 ggplot(offClean, aes(x = Stat)) + geom_histogram() + facet_wrap(~ Type, scales = 'free') + xlab("Stat") + ylab("Count") + ggtitle("Statistics by Type")
 ```
 
+The patterns that I see in these graphs are that the most common value for each stat is 0 which makes sense because most players stick to their 'lane' and either rush or pass or tackle so they will have a 0 for many of the different stats depending on their position on offense. Rushing_ATT appears to have the most variance in the graph. There were the most amount of players that had Rushing_ATT statistics which means that players most often rushed instead of receiving or passing. The passing stats graphs only have a few values because Brock Purdy and Hunter Dekkers are the quarterback and second string quarterback and they are the only ones that pass the ball unless there is a trick play or some other anomaly within a play. 
+
 *Problem 3*
 Did ISU have better offense against Oregon or Oklahoma? Answer this question by creating a scatterplot with the x- and y-axes being the receiving yards of the ISU players against these two opponents. A large number of receiving yards indicates good offense.
 ```{r}
@@ -142,21 +144,48 @@ Purdy_ReceivingYds <- Purdy %>% full_join(ReceivingYds)
 Purdy_ReceivingYds2 <- Purdy_ReceivingYds %>%
   pivot_wider(names_from = 'Opponent_Opponent', values_from = 'Passing_YDS')
 
-
-
- 
-
+#dat <- offClean %>%
+  #group_by(Name) %>%
+  #summarise(____ = mean(_____, na.rm = TRUE))
 ```
-dat <- offClean %>%
-  group_by(Name) %>%
-  summarise(____ = mean(_____, na.rm = TRUE)) %>%
-  
   
 *Problem 3*
 Which ISU player(s) made the biggest progress over the last year? Compare the player-level statistics (i.e. averages and totals for each player) using both the 2020 and the 2019 data here. Choose for yourself the player statistics to investigate.
 ```{r}
+defense19 <- read_excel('../ds202_lab4/cyclonesFootball2019.xlsx', sheet='Defensive')
+offense19 <- read_excel('../ds202_lab4/cyclonesFootball2019.xlsx', sheet='Offensive')
 
+#Investigate Charlie Kolar
+Charlie19 <- offense19 %>%
+  filter(Name == 'Kolar, Charlie') %>%
+  select(Name, Opponent_Opponent, Receiving_YDS) %>%
+  mutate(Receiving_YDS = as.numeric(Receiving_YDS))
+Charlie20 <- offense %>%
+  filter(Name == 'Kolar, Charlie') %>%
+  select(Name, Opponent_Opponent, Receiving_YDS)
+Charlie19Rec <- mean(Charlie19$Receiving_YDS)
+Charlie20Rec <- mean(Charlie20$Receiving_YDS)
 
+#Investigating Chase Allen
+Chase19 <- offense19 %>%
+  filter(Name == 'Allen, Chase') %>%
+  select(Name, Opponent_Opponent, Receiving_YDS) %>%
+  mutate(Receiving_YDS = as.numeric(Receiving_YDS))
+Chase20 <- offense %>%
+  filter(Name == 'Allen, Chase') %>%
+  select(Name, Opponent_Opponent, Receiving_YDS)
+Chase19Rec <- mean(Chase19$Receiving_YDS)
+Chase20Rec <- mean(Chase20$Receiving_YDS)
 
+#Investigating Breece Hall
+Breece19 <- offense19 %>%
+  filter(Name == 'Hall, Breece') %>%
+  select(Name, Opponent_Opponent, Rushing_YDS) %>%
+  mutate(Rushing_YDS = as.numeric(Rushing_YDS))
+Breece20 <- offense %>%
+  filter(Name == 'Hall, Breece') %>%
+  select(Name, Opponent_Opponent, Rushing_YDS)
+Breece19Rec <- mean(Breece19$Rushing_YDS)
+Breece20Rec <- mean(Breece20$Rushing_YDS)
 ```
-
+I looked at the records of tight ends Chase Allen and Charlie Kolar, and running back Breece Hall. I compared Charlie and Chase's recieving yards records and separately looked at Breece Hall's record. I found that all of them performed better in the 2020 season than they did in 2019. Charlie added 0.11 yards to his season average and Chase added 8.61 yards to his season average. Breece hall increased his rushing yard average from 2019 to 2020 bt 56.25 yards to go from 74.75 yards as his 2019 season average to 131 yards in 2020.
