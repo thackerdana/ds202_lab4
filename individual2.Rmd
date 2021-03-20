@@ -1,0 +1,107 @@
+---
+title: "individual2.Rmd"
+author: "Andrew Fahmy"
+date: "3/16/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readxl)
+library(tidyverse)
+library(ggplot2)
+defense <- read_excel('cyclonesFootball2020.xlsx', sheet='Defensive')
+offense <- read_excel('cyclonesFootball2020.xlsx', sheet='Offensive')
+
+```
+
+
+```{r}
+defense <- defense %>%
+  mutate(Name = as.factor(Name), 
+         Opponent_Opponent = as.factor(Opponent_Opponent))
+
+offense <- offense %>%
+  mutate(Name = as.factor(Name), 
+         Opponent_Opponent = as.factor(Opponent_Opponent))
+
+```
+
+```{r}
+defense <- defense %>%
+  mutate(across(Tackles_Solo:Pass_PB, as.numeric))
+
+offense <- offense %>%
+  mutate(across(Receiving_REC:Passing_INT, as.numeric))
+
+```
+
+
+```{r}
+brock = colSums(offense %>% filter(Name == "Purdy, Brock") %>% select(-c("Name", "Opponent_Opponent")), na.rm = TRUE)
+team = colSums(offense %>% filter(Name != "Purdy, Brock") %>% select(-c("Name", "Opponent_Opponent")), na.rm = TRUE)
+
+dat = data.frame(brock, team)
+dat = data.frame(t(dat))
+dat
+
+datt = offense
+datt$brock = datt$Name=="Purdy, Brock"
+
+datt  %>% ggplot(aes(x=1,y=Passing_YDS, fill=brock)) + geom_col() + coord_polar(theta = 'y')
+datt  %>% ggplot(aes(x=1,y=Passing_TD, fill=brock)) + geom_col() + coord_polar(theta = 'y')
+
+
+```
+As we can see from the data and the graph, almost all of the offensive yards
+thrown as well as touch downs are from Brock. This shows that the teams
+performance is extremely reliant on the performance of brock.
+
+
+```{r}
+defense1 <- read_excel('cyclonesFootball2019.xlsx', sheet='Defensive')
+offense1 <- read_excel('cyclonesFootball2019.xlsx', sheet='Offensive')
+biography1 <- read_excel('cyclonesFootball2019.xlsx', sheet='Biography')
+
+defense1 <- defense1 %>%
+  mutate(across(Tackles_Solo:Pass_PB, as.numeric))
+
+offense1 <- offense1 %>%
+  mutate(across(Rushing_ATT:Passing_INT, as.numeric))
+
+defense1 <- defense1 %>%
+  mutate(Name = as.factor(Name), 
+         Opponent_Opponent = as.factor(Opponent_Opponent))
+
+offense1 <- offense1 %>%
+  mutate(Name = as.factor(Name), 
+         Opponent_Opponent = as.factor(Opponent_Opponent))
+
+offense2 = offense %>% filter(Name %in% offense1$Name)
+offense3 = offense1 %>% filter(Name %in% offense$Name)
+
+mean1 = aggregate(x=offense2$Receiving_YDS, by=list(offense2$Name), FUN=mean)
+mean1$ave_2019 = aggregate(x=offense3$Receiving_YDS, by=list(offense3$Name), FUN=mean)$x
+
+mean1$improvement = mean1$ave_2019 - mean1$x 
+
+mean1[order(mean1$improvement), ]
+
+defense2 = defense %>% filter(Name %in% defense1$Name)
+defense3 = defense1 %>% filter(Name %in% defense$Name)
+
+mean2 = aggregate(x=defense2$Tackles_Solo, by=list(defense2$Name), FUN=mean)
+mean2$ave_2019 = aggregate(x=defense3$Tackles_Solo, by=list(defense3$Name), FUN=mean)$x
+
+mean2$improvement = mean2$ave_2019 - mean2$x
+
+mean2[order(mean2$improvement), ]
+
+```
+We can see that for offense, Akers, Landen had an average of 14 more receiving yards
+from the previous year.
+
+As for defense we can see that Rose, Mike had an average of 1.5 more solo tackles in 2020.
